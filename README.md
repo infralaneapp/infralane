@@ -2,9 +2,9 @@
 
 **Structured ops. Automated execution.**
 
-[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/template/infralane?referralCode=infralane)
-[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![CI](https://github.com/infralaneapp/infralane/actions/workflows/ci.yml/badge.svg)](https://github.com/infralaneapp/infralane/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+[![Deploy on Railway](https://img.shields.io/badge/deploy-Railway-blueviolet?logo=railway)](https://railway.com/template/infralane?referralCode=infralane)
 
 Infralane is an ops control center for DevOps and IT operations teams. Ticket creation triggers automation rules, approvals gate sensitive actions, and every state change is traceable.
 
@@ -60,6 +60,16 @@ Infralane is an ops control center for DevOps and IT operations teams. Ticket cr
 </details>
 
 ## Quick Start
+
+### Deploy to Railway (cloud)
+
+1. Click the **Deploy on Railway** badge above
+2. Railway auto-provisions PostgreSQL
+3. Set one variable: `INFRALANE_SESSION_SECRET` (any 32+ character random string)
+4. Deploy — app is live in ~2 minutes
+5. Register your account — **the first user becomes Admin**
+
+### Run locally (Docker)
 
 ```bash
 git clone https://github.com/infralaneapp/infralane.git && cd infralane
