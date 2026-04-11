@@ -2,6 +2,10 @@
 
 **Structured ops. Automated execution.**
 
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/template/infralane?referralCode=infralane)
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+[![CI](https://github.com/infralaneapp/infralane/actions/workflows/ci.yml/badge.svg)](https://github.com/infralaneapp/infralane/actions/workflows/ci.yml)
+
 Infralane is an ops control center for DevOps and IT operations teams. Ticket creation triggers automation rules, approvals gate sensitive actions, and every state change is traceable.
 
 ![Dashboard](./images/dashboard.png)
