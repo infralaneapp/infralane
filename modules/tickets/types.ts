@@ -2,6 +2,8 @@ import type { UserRole } from "@prisma/client";
 
 export type TicketTypeKey = "access" | "deployment" | "incident" | "infra";
 
+export type TicketPriorityValue = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+
 export type TicketStatusValue =
   | "OPEN"
   | "IN_PROGRESS"
@@ -59,6 +61,7 @@ export type TicketActivityView = {
   message: string;
   createdAt: string;
   actor: UserOption | null;
+  metadata: Record<string, unknown> | null;
 };
 
 export type TicketSummary = {
@@ -66,11 +69,17 @@ export type TicketSummary = {
   reference: string;
   title: string;
   status: TicketStatusValue;
+  priority: TicketPriorityValue;
   createdAt: string;
   updatedAt: string;
   requester: UserOption;
   assignee: UserOption | null;
   type: Pick<TicketTypeView, "id" | "key" | "name">;
+};
+
+export type TicketTagView = {
+  id: string;
+  tag: { id: string; name: string; color: string };
 };
 
 export type TicketDetail = TicketSummary & {
@@ -79,4 +88,8 @@ export type TicketDetail = TicketSummary & {
   structuredFields: TicketFieldValueView[];
   comments: TicketCommentView[];
   activities: TicketActivityView[];
+  tags: TicketTagView[];
+  firstResponseAt: string | null;
+  resolvedAt: string | null;
+  closedAt: string | null;
 };

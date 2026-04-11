@@ -2,8 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
+import { toast } from "sonner";
 
 import type { UserOption } from "@/modules/tickets/types";
+import { Button } from "@/components/ui/button";
 
 type AssignTicketFormProps = {
   ticketId: string;
@@ -43,17 +45,22 @@ export function AssignTicketForm({ ticketId, currentAssigneeId, assignees }: Ass
         | null;
 
       if (!response.ok || !payload?.success) {
-        setError(payload?.error?.message ?? "Unable to update assignee.");
+        toast.error(payload?.error?.message ?? "Unable to update assignee.");
         return;
       }
 
+      toast.success("Assignee updated.");
       router.refresh();
     });
   }
 
   return (
     <form className="space-y-3" onSubmit={handleSubmit}>
-      <select className="input-control" value={assigneeId} onChange={(event) => setAssigneeId(event.target.value)}>
+      <select
+        className="flex h-8 w-full rounded-lg border border-input bg-background px-3 text-sm text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/20"
+        value={assigneeId}
+        onChange={(event) => setAssigneeId(event.target.value)}
+      >
         <option value="">Unassigned</option>
         {assignees.map((assignee) => (
           <option key={assignee.id} value={assignee.id}>
@@ -62,11 +69,11 @@ export function AssignTicketForm({ ticketId, currentAssigneeId, assignees }: Ass
         ))}
       </select>
 
-      {error ? <p className="text-sm text-danger">{error}</p> : null}
+      {error ? <p className="text-sm text-destructive">{error}</p> : null}
 
-      <button className="button-primary w-full" disabled={isPending} type="submit">
+      <Button className="w-full" disabled={isPending} type="submit">
         {isPending ? "Saving..." : "Update assignee"}
-      </button>
+      </Button>
     </form>
   );
 }

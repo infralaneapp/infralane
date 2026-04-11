@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { AuthMarketingPanel } from "@/components/auth-marketing-panel";
 import { LoginForm } from "@/components/login-form";
 import { getSessionUser } from "@/lib/auth";
+import { Card } from "@/components/ui/card";
 
 export default async function LoginPage() {
   const sessionUser = await getSessionUser();
@@ -13,32 +14,32 @@ export default async function LoginPage() {
 
   return (
     <main className="flex min-h-screen items-center px-6 py-10">
-      <div className="mx-auto grid w-full max-w-5xl gap-8 lg:grid-cols-[1.05fr_0.95fr]">
+      <div className="mx-auto grid w-full max-w-5xl gap-6 lg:grid-cols-[1.05fr_0.95fr]">
         <AuthMarketingPanel />
 
-        <section className="surface p-8 lg:p-10">
+        <Card className="p-8 shadow-card lg:p-10">
           <div>
-            <h2 className="text-2xl font-semibold tracking-tight text-ink">Sign in</h2>
-            <p className="mt-2 text-sm leading-6 text-muted">
+            <h2 className="text-xl font-semibold tracking-heading text-foreground">Sign in</h2>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               Use an existing account or create a new one. The seeded demo accounts still use{" "}
-              <span className="font-medium text-ink">password123</span>.
+              <code className="rounded bg-muted px-1.5 py-0.5 text-xs font-medium text-foreground">password123</code>.
             </p>
           </div>
 
-          <div className="mt-8">
+          <div className="mt-7">
             <LoginForm />
           </div>
 
-          <div className="mt-8 rounded-lg border border-line bg-slate-50 p-4">
-            <p className="text-sm font-medium text-ink">Sample accounts</p>
-            <div className="mt-3 space-y-2 text-sm text-muted">
-              <p>alex.hart@opsflow.local</p>
-              <p>nina.cho@opsflow.local</p>
-              <p>samir.khan@opsflow.local</p>
-              <p>leila.morgan@opsflow.local</p>
+          <div className="mt-7 rounded-lg border border-border bg-muted/40 p-4">
+            <p className="text-sm font-medium text-foreground">Sample accounts</p>
+            <div className="mt-2.5 space-y-1.5 font-mono text-[13px] text-muted-foreground">
+              <p>alex.hart@infralane.local</p>
+              <p>nina.cho@infralane.local</p>
+              <p>samir.khan@infralane.local</p>
+              <p>leila.morgan@infralane.local</p>
             </div>
           </div>
-        </section>
+        </Card>
       </div>
     </main>
   );

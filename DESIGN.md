@@ -1,4 +1,4 @@
-# OpsFlow Design System
+# Infralane Design System
 
 Blends Notion's warm, approachable light mode with Linear's precision engineering for components.
 

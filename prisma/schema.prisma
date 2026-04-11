@@ -9,7 +9,8 @@ datasource db {
 
 enum UserRole {
   REQUESTER
-  DEVOPS
+  OPERATOR
+  ADMIN
 }
 
 enum TicketStatus {
@@ -20,12 +21,22 @@ enum TicketStatus {
   CLOSED
 }
 
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
 enum TicketActivityType {
   CREATED
   UPDATED
   ASSIGNED
   STATUS_CHANGED
   COMMENTED
+  APPROVAL_REQUESTED
+  APPROVAL_APPROVED
+  APPROVAL_REJECTED
 }
 
 model User {
@@ -38,6 +49,12 @@ model User {
   assignedTickets  Ticket[]         @relation("AssignedTickets")
   comments         TicketComment[]
   activities       TicketActivity[]
+  notifications    Notification[]
+  savedFilters     SavedFilter[]
+  approvalsGiven   ApprovalRequest[] @relation("Approver")
+  approvalsRequested ApprovalRequest[] @relation("ApprovalRequester")
+  slackUserId      String?
+  onboarded        Boolean          @default(false)
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
 
@@ -46,14 +63,16 @@ model User {
 }
 
 model TicketType {
-  id          String   @id @default(cuid())
-  key         String   @unique
+  id          String           @id @default(cuid())
+  key         String           @unique
   name        String
   description String?
   fieldSchema Json
+  archived    Boolean          @default(false)
   tickets     Ticket[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  templates   TicketTemplate[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
 
   @@map("ticket_types")
 }
@@ -64,17 +83,28 @@ model Ticket {
   title        String
   description  String?        @db.Text
   status       TicketStatus   @default(OPEN)
+  priority     TicketPriority @default(MEDIUM)
   requesterId  String
   assigneeId   String?
   ticketTypeId String
   requester    User           @relation("RequestedTickets", fields: [requesterId], references: [id], onDelete: Restrict)
   assignee     User?          @relation("AssignedTickets", fields: [assigneeId], references: [id], onDelete: SetNull)
   ticketType   TicketType     @relation(fields: [ticketTypeId], references: [id], onDelete: Restrict)
-  fields       TicketField[]
-  comments     TicketComment[]
-  activities   TicketActivity[]
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+  firstResponseAt  DateTime?
+  resolvedAt       DateTime?
+  closedAt         DateTime?
+  fields           TicketField[]
+  comments         TicketComment[]
+  activities       TicketActivity[]
+  attachments      Attachment[]
+  tags             TicketTag[]
+  relationsFrom    TicketRelation[] @relation("RelationFrom")
+  relationsTo      TicketRelation[] @relation("RelationTo")
+  automationJobs   AutomationJob[]
+  approvalRequests ApprovalRequest[]
+  rating           TicketRating?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
 
   @@index([status, createdAt(sort: Desc)])
   @@index([ticketTypeId, createdAt(sort: Desc)])
@@ -126,4 +156,348 @@ model TicketField {
   @@unique([ticketId, key])
   @@index([ticketId])
   @@map("ticket_fields")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  href      String?
+  read      Boolean  @default(false)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([userId, read, createdAt(sort: Desc)])
+  @@map("notifications")
+}
+
+model TicketTemplate {
+  id           String     @id @default(cuid())
+  systemKey    String?    @unique
+  name         String
+  description  String?
+  ticketTypeId String
+  ticketType   TicketType @relation(fields: [ticketTypeId], references: [id], onDelete: Cascade)
+  priority     TicketPriority @default(MEDIUM)
+  title        String?
+  body         String?    @db.Text
+  fieldValues  Json       @default("{}")
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@map("ticket_templates")
+}
+
+model Attachment {
+  id        String   @id @default(cuid())
+  ticketId  String
+  filename  String
+  mimeType  String
+  size      Int
+  path      String
+  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([ticketId])
+  @@map("attachments")
+}
+
+model Tag {
+  id        String      @id @default(cuid())
+  name      String      @unique
+  color     String      @default("#6b7280")
+  tickets   TicketTag[]
+  createdAt DateTime    @default(now())
+
+  @@map("tags")
+}
+
+model TicketTag {
+  id        String   @id @default(cuid())
+  ticketId  String
+  tagId     String
+  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([ticketId, tagId])
+  @@index([ticketId])
+  @@index([tagId])
+  @@map("ticket_tags")
+}
+
+enum RelationType {
+  RELATED
+  BLOCKS
+  DUPLICATE
+}
+
+model TicketRelation {
+  id           String       @id @default(cuid())
+  fromTicketId String
+  toTicketId   String
+  type         RelationType @default(RELATED)
+  fromTicket   Ticket       @relation("RelationFrom", fields: [fromTicketId], references: [id], onDelete: Cascade)
+  toTicket     Ticket       @relation("RelationTo", fields: [toTicketId], references: [id], onDelete: Cascade)
+  createdAt    DateTime     @default(now())
+
+  @@unique([fromTicketId, toTicketId])
+  @@index([fromTicketId])
+  @@index([toTicketId])
+  @@map("ticket_relations")
+}
+
+model SavedFilter {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  filters   Json
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@map("saved_filters")
+}
+
+enum AutomationTrigger {
+  TICKET_CREATED
+  STATUS_CHANGED
+  SLA_BREACHED
+  PRIORITY_CHANGED
+  STALE_WAITING
+  RESOLVED_EXPIRED
+}
+
+enum AutomationAction {
+  ASSIGN_TO
+  CHANGE_STATUS
+  CHANGE_PRIORITY
+  ADD_TAG
+  NOTIFY
+  SLACK_NOTIFY
+  WEBHOOK
+  ESCALATE
+}
+
+model AutomationRule {
+  id              String            @id @default(cuid())
+  systemKey       String?           @unique
+  name            String
+  builtIn         Boolean           @default(false)
+  enabled         Boolean           @default(true)
+  trigger         AutomationTrigger
+  conditions      Json              @default("{}")
+  action          AutomationAction
+  actionValue     String
+  requiresApproval Boolean          @default(false)
+  approverUserId  String?
+  jobs            AutomationJob[]
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@map("automation_rules")
+}
+
+enum AutomationJobStatus {
+  QUEUED
+  RUNNING
+  SUCCEEDED
+  FAILED
+  SKIPPED
+  DEAD_LETTER
+  PENDING_APPROVAL
+}
+
+model AutomationJob {
+  id             String              @id @default(cuid())
+  ruleId         String
+  ticketId       String
+  trigger        AutomationTrigger
+  status         AutomationJobStatus @default(QUEUED)
+  actionPayload  Json
+  result         Json?
+  error          String?
+  attempts       Int                 @default(0)
+  maxAttempts    Int                 @default(3)
+  dedupKey       String?
+  nextRunAt      DateTime?
+  lastAttemptAt  DateTime?
+  deadLetter     Boolean             @default(false)
+  triggerContext  Json?
+  rule           AutomationRule      @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  ticket         Ticket              @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  events         AutomationJobEvent[]
+  approvalRequest ApprovalRequest?
+  createdAt      DateTime            @default(now())
+  startedAt      DateTime?
+  completedAt    DateTime?
+
+  @@index([ruleId, ticketId, trigger])
+  @@unique([ruleId, dedupKey])
+  @@index([status, createdAt])
+  @@map("automation_jobs")
+}
+
+model AutomationJobEvent {
+  id        String        @id @default(cuid())
+  jobId     String
+  job       AutomationJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  event     String
+  detail    String?       @db.Text
+  createdAt DateTime      @default(now())
+
+  @@index([jobId, createdAt])
+  @@map("automation_job_events")
+}
+
+model WebhookEndpoint {
+  id              String   @id @default(cuid())
+  name            String
+  url             String
+  method          String   @default("POST")
+  headers         Json     @default("{}")
+  payloadTemplate String?  @db.Text
+  allowedDomains  String[] @default([])
+  enabled         Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("webhook_endpoints")
+}
+
+model AutomationRuleEvaluation {
+  id           String   @id @default(cuid())
+  ruleId       String
+  ticketId     String
+  trigger      String
+  matched      Boolean
+  dedupSkipped Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  @@index([ruleId, createdAt])
+  @@index([createdAt])
+  @@map("automation_rule_evaluations")
+}
+
+model IntegrationConfig {
+  id        String   @id @default(cuid())
+  provider  String   @unique
+  config    Json
+  enabled   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("integration_configs")
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  EXPIRED
+}
+
+model ApprovalRequest {
+  id            String         @id @default(cuid())
+  ticketId      String
+  ticket        Ticket         @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  jobId         String?        @unique
+  job           AutomationJob? @relation(fields: [jobId], references: [id], onDelete: SetNull)
+  status        ApprovalStatus @default(PENDING)
+  approverId    String?
+  approver      User?          @relation("Approver", fields: [approverId], references: [id], onDelete: SetNull)
+  requestedById String
+  requestedBy   User           @relation("ApprovalRequester", fields: [requestedById], references: [id], onDelete: Restrict)
+  designatedApproverId String?
+  reason        String?        @db.Text
+  decidedAt     DateTime?
+  expiresAt     DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@index([ticketId])
+  @@index([status, createdAt])
+  @@index([approverId, status])
+  @@map("approval_requests")
+}
+
+model CannedResponse {
+  id        String   @id @default(cuid())
+  title     String
+  content   String   @db.Text
+  category  String?
+  createdBy String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("canned_responses")
+}
+
+model SettingsAuditLog {
+  id        String   @id @default(cuid())
+  actorId   String
+  action    String
+  entity    String
+  entityId  String?
+  detail    String?  @db.Text
+  createdAt DateTime @default(now())
+
+  @@index([createdAt(sort: Desc)])
+  @@index([entity, entityId])
+  @@map("settings_audit_logs")
+}
+
+model TicketRating {
+  id        String   @id @default(cuid())
+  ticketId  String   @unique
+  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  userId    String
+  rating    Int
+  comment   String?  @db.Text
+  createdAt DateTime @default(now())
+
+  @@map("ticket_ratings")
+}
+
+model KnowledgeBaseArticle {
+  id           String   @id @default(cuid())
+  title        String
+  slug         String   @unique
+  content      String   @db.Text
+  category     String?
+  ticketTypeId String?
+  published    Boolean  @default(false)
+  viewCount    Int      @default(0)
+  createdBy    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([published, category])
+  @@map("knowledge_base_articles")
+}
+
+model EscalationPolicy {
+  id        String   @id @default(cuid())
+  name      String
+  enabled   Boolean  @default(true)
+  steps     Json     @default("[]")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("escalation_policies")
+}
+
+model BusinessHoursConfig {
+  id        String   @id @default(cuid())
+  name      String   @default("default")
+  timezone  String   @default("UTC")
+  schedule  Json     @default("{}")
+  holidays  Json     @default("[]")
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("business_hours_configs")
 }

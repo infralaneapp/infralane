@@ -4,6 +4,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
 export function RegisterForm() {
   const router = useRouter();
   const [name, setName] = useState("");
@@ -56,14 +60,12 @@ export function RegisterForm() {
   }
 
   return (
-    <form className="space-y-5" onSubmit={handleSubmit}>
+    <form className="space-y-4" onSubmit={handleSubmit}>
       <div>
-        <label className="label" htmlFor="name">
-          Full name
-        </label>
-        <input
+        <Label htmlFor="name">Full name</Label>
+        <Input
           id="name"
-          className="input-control"
+          className="mt-1.5"
           autoComplete="name"
           maxLength={80}
           required
@@ -74,12 +76,10 @@ export function RegisterForm() {
       </div>
 
       <div>
-        <label className="label" htmlFor="register-email">
-          Email
-        </label>
-        <input
+        <Label htmlFor="register-email">Email</Label>
+        <Input
           id="register-email"
-          className="input-control"
+          className="mt-1.5"
           autoComplete="email"
           required
           type="email"
@@ -89,12 +89,10 @@ export function RegisterForm() {
       </div>
 
       <div>
-        <label className="label" htmlFor="register-password">
-          Password
-        </label>
-        <input
+        <Label htmlFor="register-password">Password</Label>
+        <Input
           id="register-password"
-          className="input-control"
+          className="mt-1.5"
           autoComplete="new-password"
           minLength={8}
           required
@@ -105,12 +103,10 @@ export function RegisterForm() {
       </div>
 
       <div>
-        <label className="label" htmlFor="confirm-password">
-          Confirm password
-        </label>
-        <input
+        <Label htmlFor="confirm-password">Confirm password</Label>
+        <Input
           id="confirm-password"
-          className="input-control"
+          className="mt-1.5"
           autoComplete="new-password"
           minLength={8}
           required
@@ -120,15 +116,15 @@ export function RegisterForm() {
         />
       </div>
 
-      {error ? <p className="text-sm text-danger">{error}</p> : null}
+      {error ? <p className="text-sm text-destructive">{error}</p> : null}
 
-      <button className="button-primary w-full" disabled={isPending} type="submit">
+      <Button className="w-full" disabled={isPending} type="submit">
         {isPending ? "Creating account..." : "Create account"}
-      </button>
+      </Button>
 
-      <p className="text-sm text-muted">
+      <p className="text-sm text-muted-foreground">
         Already have an account?{" "}
-        <Link href="/login" className="font-medium text-accent">
+        <Link href="/login" className="font-medium text-primary hover:underline">
           Sign in
         </Link>
       </p>

@@ -57,13 +57,24 @@ export async function registerUser(input: RegisterInput) {
     });
   }
 
-  return prisma.user.create({
-    data: {
-      name: input.name.trim(),
-      email: normalizedEmail,
-      passwordHash: hashPassword(input.password),
-      role: "REQUESTER",
-    },
-    select: authUserSelect,
-  });
+  try {
+    return await prisma.user.create({
+      data: {
+        name: input.name.trim(),
+        email: normalizedEmail,
+        passwordHash: hashPassword(input.password),
+        role: "REQUESTER",
+      },
+      select: authUserSelect,
+    });
+  } catch (err: any) {
+    // P2002 = unique constraint violation (race condition on email)
+    if (err?.code === "P2002") {
+      throw new AppError("An account with this email already exists.", {
+        status: 409,
+        code: "EMAIL_ALREADY_EXISTS",
+      });
+    }
+    throw err;
+  }
 }
