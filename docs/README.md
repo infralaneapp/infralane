@@ -14,4 +14,4 @@ Infralane is an internal IT operations ticketing platform with an integrated aut
 | [Slack Integration](./slack-integration.md) | OAuth login, DM notifications, interactive approvals, setup guide |
 | [API Reference](./api-reference.md) | All REST endpoints with request/response examples |
 | [Built-in Automations](./built-in-automations.md) | Default rules and templates shipped with Infralane |
-| [Open-Source Checklist](./open-source-checklist.md) | Readiness checklist for public release (16/45 done) |
+| [Deployment](./deployment.md) | Production deployment, scaling, monitoring |
