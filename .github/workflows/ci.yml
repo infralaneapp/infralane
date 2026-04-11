@@ -82,3 +82,4 @@ jobs:
       - name: Check for known vulnerabilities
         run: npx audit-ci --high
         continue-on-error: true
+# CI trigger
