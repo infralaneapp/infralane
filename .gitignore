@@ -35,3 +35,6 @@ coverage
 
 # Build
 tsconfig.tsbuildinfo
+
+# Internal docs (not shipped)
+INTERNAL.md
