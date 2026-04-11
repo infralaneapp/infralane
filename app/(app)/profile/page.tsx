@@ -200,7 +200,7 @@ export default function ProfilePage() {
       {/* Change password */}
       <Card className="p-6 shadow-card">
         <h2 className="text-sm font-semibold text-foreground">Change Password</h2>
-        <p className="mt-1 text-xs text-muted-foreground">Update your password. You'll stay logged in after changing it.</p>
+        <p className="mt-1 text-xs text-muted-foreground">Update your password. You&apos;ll stay logged in after changing it.</p>
         <Separator className="my-4" />
         <form onSubmit={handleChangePassword} className="space-y-4">
           <div className="space-y-1.5">

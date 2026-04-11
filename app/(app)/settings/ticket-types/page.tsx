@@ -523,7 +523,7 @@ export default function TicketTypesPage() {
 
               {formFields.length === 0 && (
                 <p className="text-sm text-muted-foreground">
-                  No fields defined. Click "Add field" to start.
+                  No fields defined. Click &ldquo;Add field&rdquo; to start.
                 </p>
               )}
             </div>
