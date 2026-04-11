@@ -2,7 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { LayoutList, Plus, BarChart3, Sun, Moon, Monitor, Ticket } from "lucide-react";
+import {
+  LayoutList, Plus, BarChart3, Sun, Moon, Monitor,
+  ShieldCheck, FileBarChart, ClipboardList, BookOpen, Settings,
+  Columns3, Search,
+} from "lucide-react";
 import { useTheme } from "next-themes";
 
 import {
@@ -13,6 +17,7 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
+  CommandShortcut,
 } from "@/components/ui/command";
 
 type TicketResult = {
@@ -21,6 +26,21 @@ type TicketResult = {
   title: string;
   status: string;
   priority: string;
+};
+
+const STATUS_COLORS: Record<string, string> = {
+  OPEN: "text-blue-500",
+  IN_PROGRESS: "text-amber-500",
+  WAITING_FOR_REQUESTER: "text-violet-500",
+  RESOLVED: "text-emerald-500",
+  CLOSED: "text-muted-foreground",
+};
+
+const PRIORITY_COLORS: Record<string, string> = {
+  URGENT: "bg-red-500",
+  HIGH: "bg-orange-500",
+  MEDIUM: "bg-blue-500",
+  LOW: "bg-gray-400",
 };
 
 export function CommandPalette() {
@@ -86,13 +106,22 @@ export function CommandPalette() {
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
       <CommandInput
-        placeholder="Search tickets, navigate, or change settings..."
+        placeholder="Search tickets, navigate, or change theme..."
         value={query}
         onValueChange={setQuery}
       />
       <CommandList>
         <CommandEmpty>
-          {searching ? "Searching..." : "No results found."}
+          {searching ? (
+            <div className="flex items-center justify-center gap-2">
+              <Search className="size-4 animate-pulse text-muted-foreground" />
+              <span>Searching...</span>
+            </div>
+          ) : query.length > 0 ? (
+            "No results found."
+          ) : (
+            <span className="text-muted-foreground">Type to search tickets or use commands below.</span>
+          )}
         </CommandEmpty>
 
         {ticketResults.length > 0 && (
@@ -104,12 +133,12 @@ export function CommandPalette() {
                   value={`${ticket.reference} ${ticket.title}`}
                   onSelect={() => navigate(`/tickets/${ticket.id}`)}
                 >
-                  <Ticket className="mr-2 size-4 shrink-0" />
-                  <span className="mr-2 shrink-0 font-mono text-xs text-muted-foreground">
+                  <div className={`size-2 rounded-full ${PRIORITY_COLORS[ticket.priority] ?? "bg-gray-400"}`} />
+                  <span className="shrink-0 font-mono text-xs text-muted-foreground">
                     {ticket.reference}
                   </span>
                   <span className="truncate">{ticket.title}</span>
-                  <span className="ml-auto shrink-0 text-xs text-muted-foreground">
+                  <span className={`ml-auto shrink-0 text-xs ${STATUS_COLORS[ticket.status] ?? "text-muted-foreground"}`}>
                     {ticket.status.replace(/_/g, " ").toLowerCase()}
                   </span>
                 </CommandItem>
@@ -119,32 +148,66 @@ export function CommandPalette() {
           </>
         )}
 
-        <CommandGroup heading="Navigation">
+        <CommandGroup heading="Quick Actions">
+          <CommandItem onSelect={() => navigate("/tickets/new")}>
+            <Plus className="size-4 text-muted-foreground" />
+            New ticket
+            <CommandShortcut>N</CommandShortcut>
+          </CommandItem>
           <CommandItem onSelect={() => navigate("/dashboard")}>
-            <BarChart3 className="mr-2 size-4" />
+            <BarChart3 className="size-4 text-muted-foreground" />
             Dashboard
+            <CommandShortcut>D</CommandShortcut>
           </CommandItem>
           <CommandItem onSelect={() => navigate("/tickets")}>
-            <LayoutList className="mr-2 size-4" />
+            <LayoutList className="size-4 text-muted-foreground" />
             Ticket queue
           </CommandItem>
-          <CommandItem onSelect={() => navigate("/tickets/new")}>
-            <Plus className="mr-2 size-4" />
-            New ticket
+          <CommandItem onSelect={() => navigate("/tickets/board")}>
+            <Columns3 className="size-4 text-muted-foreground" />
+            Board view
+            <CommandShortcut>B</CommandShortcut>
           </CommandItem>
         </CommandGroup>
+
         <CommandSeparator />
+
+        <CommandGroup heading="Navigate">
+          <CommandItem onSelect={() => navigate("/approvals")}>
+            <ShieldCheck className="size-4 text-muted-foreground" />
+            Approvals
+          </CommandItem>
+          <CommandItem onSelect={() => navigate("/reports")}>
+            <FileBarChart className="size-4 text-muted-foreground" />
+            Reports
+          </CommandItem>
+          <CommandItem onSelect={() => navigate("/audit")}>
+            <ClipboardList className="size-4 text-muted-foreground" />
+            Audit log
+          </CommandItem>
+          <CommandItem onSelect={() => navigate("/knowledge-base")}>
+            <BookOpen className="size-4 text-muted-foreground" />
+            Knowledge base
+          </CommandItem>
+          <CommandItem onSelect={() => navigate("/settings")}>
+            <Settings className="size-4 text-muted-foreground" />
+            Settings
+          </CommandItem>
+        </CommandGroup>
+
+        <CommandSeparator />
+
         <CommandGroup heading="Theme">
           <CommandItem onSelect={() => { setTheme("light"); setOpen(false); }}>
-            <Sun className="mr-2 size-4" />
+            <Sun className="size-4 text-muted-foreground" />
             Light mode
           </CommandItem>
           <CommandItem onSelect={() => { setTheme("dark"); setOpen(false); }}>
-            <Moon className="mr-2 size-4" />
+            <Moon className="size-4 text-muted-foreground" />
             Dark mode
           </CommandItem>
           <CommandItem onSelect={() => { setTheme("system"); setOpen(false); }}>
-            <Monitor className="mr-2 size-4" />
+            <Monitor className="size-4 text-muted-foreground" />
             System theme
           </CommandItem>
         </CommandGroup>
