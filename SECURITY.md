@@ -11,7 +11,7 @@
 If you discover a security vulnerability in Infralane, please report it responsibly:
 
 1. **Do not** open a public issue
-2. Email security@infralane.dev (or use GitHub's private vulnerability reporting)
+2. use GitHub's private vulnerability reporting
 3. Include:
    - Description of the vulnerability
    - Steps to reproduce
