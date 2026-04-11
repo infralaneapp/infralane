@@ -48,6 +48,10 @@ export async function parseRequestBody<TSchema extends ZodTypeAny>(request: Requ
   return schema.parse(body);
 }
 
+export type RouteContext<T extends Record<string, string> = { id: string }> = {
+  params: Promise<T>;
+};
+
 export function handleApiError(error: unknown) {
   if (error instanceof ZodError) {
     return apiError("Validation failed.", {

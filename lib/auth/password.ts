@@ -1,9 +1,11 @@
-import { createHash } from "node:crypto";
+import bcrypt from "bcryptjs";
 
-export function hashPassword(password: string) {
-  return createHash("sha256").update(password).digest("hex");
+const BCRYPT_ROUNDS = 12;
+
+export function hashPassword(password: string): string {
+  return bcrypt.hashSync(password, BCRYPT_ROUNDS);
 }
 
-export function verifyPassword(password: string, passwordHash: string) {
-  return hashPassword(password) === passwordHash;
+export function verifyPassword(password: string, passwordHash: string): boolean {
+  return bcrypt.compareSync(password, passwordHash);
 }

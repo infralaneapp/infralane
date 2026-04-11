@@ -1,156 +1,104 @@
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --surface: #ffffff;
-  --surface-muted: #f8fafc;
-  --muted: #64748b;
-  --line: #dbe3ef;
-  --accent: #2563eb;
-}
+@layer base {
+  :root {
+    /* Infralane: Notion warmth + Linear precision */
+    --background: 43 10% 96%;
+    --foreground: 30 8% 10%;
 
-* {
-  box-sizing: border-box;
-}
+    --card: 0 0% 100%;
+    --card-foreground: 30 8% 10%;
 
-html {
-  min-height: 100%;
-}
+    --popover: 0 0% 100%;
+    --popover-foreground: 30 8% 10%;
 
-body {
-  min-height: 100vh;
-  margin: 0;
-  font-family: "Segoe UI", "SF Pro Text", ui-sans-serif, system-ui, sans-serif;
-}
+    --primary: 234 40% 60%;
+    --primary-foreground: 0 0% 100%;
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
+    --secondary: 43 10% 96%;
+    --secondary-foreground: 30 6% 20%;
 
-button,
-input,
-select,
-textarea {
-  font: inherit;
+    --muted: 40 6% 96%;
+    --muted-foreground: 30 5% 41%;
+
+    --accent: 234 60% 96%;
+    --accent-foreground: 234 40% 60%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 0% / 0.08;
+    --input: 0 0% 0% / 0.10;
+    --ring: 234 40% 60%;
+
+    --radius: 0.75rem;
+
+    /* Status colors */
+    --status-open: 234 40% 60%;
+    --status-open-bg: 234 60% 96%;
+    --status-progress: 38 84% 44%;
+    --status-progress-bg: 45 100% 94%;
+    --status-waiting: 263 70% 58%;
+    --status-waiting-bg: 263 60% 97%;
+    --status-resolved: 160 60% 45%;
+    --status-resolved-bg: 152 76% 96%;
+    --status-closed: 30 5% 41%;
+    --status-closed-bg: 40 6% 96%;
+  }
+
+  .dark {
+    --background: 240 6% 9%;
+    --foreground: 0 0% 97%;
+
+    --card: 240 5% 12%;
+    --card-foreground: 0 0% 97%;
+
+    --popover: 240 5% 12%;
+    --popover-foreground: 0 0% 97%;
+
+    --primary: 234 50% 65%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 240 5% 16%;
+    --secondary-foreground: 0 0% 97%;
+
+    --muted: 240 5% 16%;
+    --muted-foreground: 0 0% 64%;
+
+    --accent: 240 5% 16%;
+    --accent-foreground: 0 0% 97%;
+
+    --destructive: 0 63% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 100% / 0.08;
+    --input: 0 0% 100% / 0.12;
+    --ring: 234 50% 65%;
+
+    --status-open: 234 50% 65%;
+    --status-open-bg: 234 30% 18%;
+    --status-progress: 38 84% 55%;
+    --status-progress-bg: 38 40% 16%;
+    --status-waiting: 263 70% 65%;
+    --status-waiting-bg: 263 30% 18%;
+    --status-resolved: 160 60% 50%;
+    --status-resolved-bg: 160 30% 15%;
+    --status-closed: 0 0% 50%;
+    --status-closed-bg: 0 0% 16%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "cv01", "ss03";
+  }
 }
 
 ::selection {
-  background: rgba(37, 99, 235, 0.18);
-}
-
-@layer components {
-  .surface {
-    @apply rounded-xl border border-line bg-panel shadow-panel;
-  }
-
-  .page-title {
-    @apply text-2xl font-semibold tracking-tight text-ink;
-  }
-
-  .page-subtitle {
-    @apply text-sm leading-6 text-muted;
-  }
-
-  .input-control {
-    @apply w-full rounded-lg border border-line bg-white px-3 py-2.5 text-sm text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-blue-100;
-  }
-
-  .label {
-    @apply mb-2 block text-sm font-medium text-slate-700;
-  }
-
-  .button-primary {
-    @apply inline-flex items-center justify-center rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60;
-  }
-
-  .button-secondary {
-    @apply inline-flex items-center justify-center rounded-lg border border-line bg-white px-4 py-2.5 text-sm font-medium text-ink transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60;
-  }
-}
-
-@layer base {
-  .theme {
-    --font-heading: var(--font-sans);
-    --font-sans: var(--font-sans);
-  }
-  :root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0);
-  }
-  .dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
-  }
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-  html {
-    @apply font-sans;
-  }
+  @apply bg-primary/15;
 }

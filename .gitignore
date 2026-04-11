@@ -1,7 +1,37 @@
-.next
+# Dependencies
 node_modules
-.env
+
+# Next.js
+.next
+out
 dist
-coverage
-*.log
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Database
 prisma/dev.db
+
+# IDE / Editor
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude Code
+.claude
+
+# Coverage / Tests
+coverage
+
+# Logs
+*.log
+
+# Build
+tsconfig.tsbuildinfo

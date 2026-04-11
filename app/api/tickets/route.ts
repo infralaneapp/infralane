@@ -18,9 +18,9 @@ export async function GET(request: Request) {
 
     const url = new URL(request.url);
     const filters = listTicketsFilterSchema.parse(Object.fromEntries(url.searchParams.entries()));
-    const tickets = await listTickets(filters, sessionUser);
+    const result = await listTickets(filters, sessionUser);
 
-    return apiSuccess({ tickets });
+    return apiSuccess(result);
   } catch (error) {
     return handleApiError(error);
   }

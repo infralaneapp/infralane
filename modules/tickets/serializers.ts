@@ -40,6 +40,11 @@ export const ticketDetailArgs = Prisma.validator<Prisma.TicketDefaultArgs>()({
         key: "asc",
       },
     },
+    tags: {
+      include: {
+        tag: true,
+      },
+    },
     comments: {
       orderBy: {
         createdAt: "asc",
@@ -67,7 +72,7 @@ export type TicketSummaryRecord = Prisma.TicketGetPayload<typeof ticketSummaryAr
 export type TicketDetailRecord = Prisma.TicketGetPayload<typeof ticketDetailArgs>;
 
 export function formatTicketReference(sequence: number) {
-  return `OPS-${sequence.toString().padStart(4, "0")}`;
+  return `INF-${sequence.toString().padStart(4, "0")}`;
 }
 
 export function serializeUser(user: SelectedUser | null): UserOption | null {
@@ -105,6 +110,7 @@ export function serializeTicketSummary(ticket: TicketSummaryRecord): TicketSumma
     reference: formatTicketReference(ticket.sequence),
     title: ticket.title,
     status: ticket.status,
+    priority: ticket.priority,
     createdAt: ticket.createdAt.toISOString(),
     updatedAt: ticket.updatedAt.toISOString(),
     requester: serializeUser(ticket.requester)!,
@@ -124,6 +130,13 @@ export function serializeTicketDetail(ticket: TicketDetailRecord): TicketDetail 
     ...serializeTicketSummary(ticket),
     description: ticket.description,
     ticketType,
+    firstResponseAt: ticket.firstResponseAt?.toISOString() ?? null,
+    resolvedAt: ticket.resolvedAt?.toISOString() ?? null,
+    closedAt: ticket.closedAt?.toISOString() ?? null,
+    tags: ticket.tags.map((tt) => ({
+      id: tt.id,
+      tag: { id: tt.tag.id, name: tt.tag.name, color: tt.tag.color },
+    })),
     structuredFields: mapStructuredFields(ticketType.fieldSchema, ticket.fields),
     comments: ticket.comments.map((comment) => ({
       id: comment.id,
@@ -138,6 +151,7 @@ export function serializeTicketDetail(ticket: TicketDetailRecord): TicketDetail 
       message: activity.message,
       createdAt: activity.createdAt.toISOString(),
       actor: serializeUser(activity.actor),
+      metadata: (activity.metadata as Record<string, unknown>) ?? null,
     })),
   };
 }
