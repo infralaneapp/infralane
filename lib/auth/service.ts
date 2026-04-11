@@ -58,12 +58,16 @@ export async function registerUser(input: RegisterInput) {
   }
 
   try {
+    // First user to register becomes ADMIN (bootstraps the system)
+    const userCount = await prisma.user.count();
+    const role = userCount === 0 ? "ADMIN" : "REQUESTER";
+
     return await prisma.user.create({
       data: {
         name: input.name.trim(),
         email: normalizedEmail,
         passwordHash: hashPassword(input.password),
-        role: "REQUESTER",
+        role,
       },
       select: authUserSelect,
     });

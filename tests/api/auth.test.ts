@@ -5,6 +5,7 @@ const mockPrisma = vi.hoisted(() => ({
   user: {
     findUnique: vi.fn(),
     create: vi.fn(),
+    count: vi.fn(),
   },
 }));
 
@@ -108,6 +109,7 @@ describe("registerUser", () => {
 
   it("creates a new user successfully", async () => {
     mockPrisma.user.findUnique.mockResolvedValueOnce(null);
+    mockPrisma.user.count.mockResolvedValueOnce(5);
     mockPrisma.user.create.mockResolvedValueOnce({
       id: "u-new",
       email: "new@test.com",
@@ -169,6 +171,7 @@ describe("registerUser", () => {
 
   it("throws on duplicate email (P2002 race condition)", async () => {
     mockPrisma.user.findUnique.mockResolvedValueOnce(null);
+    mockPrisma.user.count.mockResolvedValueOnce(5);
 
     const prismaError = new Error("Unique constraint failed") as any;
     prismaError.code = "P2002";
@@ -190,6 +193,7 @@ describe("registerUser", () => {
 
   it("re-throws non-P2002 errors from create", async () => {
     mockPrisma.user.findUnique.mockResolvedValueOnce(null);
+    mockPrisma.user.count.mockResolvedValueOnce(5);
     mockPrisma.user.create.mockRejectedValueOnce(new Error("DB connection lost"));
 
     await expect(
