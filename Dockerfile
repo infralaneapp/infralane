@@ -22,7 +22,7 @@ RUN npm run build
 # --- Production ---
 FROM base AS runner
 ENV NODE_ENV=production
-ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=builder /app/.next/standalone ./
@@ -39,6 +39,6 @@ COPY --from=builder /app/modules ./modules
 COPY --from=builder /app/lib ./lib
 COPY --from=builder /app/docker ./docker
 
-EXPOSE 3000
+EXPOSE ${PORT:-3000}
 
 CMD ["node", "server.js"]
