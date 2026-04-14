@@ -21,8 +21,7 @@ export default async function LoginPage() {
           <div>
             <h2 className="text-xl font-semibold tracking-heading text-foreground">Sign in</h2>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              Use an existing account or create a new one. The seeded demo accounts still use{" "}
-              <code className="rounded bg-muted px-1.5 py-0.5 text-xs font-medium text-foreground">password123</code>.
+              Sign in to your account or create a new one to get started.
             </p>
           </div>
 
@@ -30,15 +29,17 @@ export default async function LoginPage() {
             <LoginForm />
           </div>
 
-          <div className="mt-7 rounded-lg border border-border bg-muted/40 p-4">
-            <p className="text-sm font-medium text-foreground">Sample accounts</p>
-            <div className="mt-2.5 space-y-1.5 font-mono text-[13px] text-muted-foreground">
-              <p>alex.hart@infralane.local</p>
-              <p>nina.cho@infralane.local</p>
-              <p>samir.khan@infralane.local</p>
-              <p>leila.morgan@infralane.local</p>
+          {process.env.NODE_ENV === "development" && (
+            <div className="mt-7 rounded-lg border border-border bg-muted/40 p-4">
+              <p className="text-sm font-medium text-foreground">Demo accounts (dev only)</p>
+              <p className="mt-1 text-xs text-muted-foreground">Password for all: password123</p>
+              <div className="mt-2.5 space-y-1.5 font-mono text-[13px] text-muted-foreground">
+                <p>alex.hart@infralane.local (Admin)</p>
+                <p>jordan.ellis@infralane.local (Operator)</p>
+                <p>samir.khan@infralane.local (Requester)</p>
+              </div>
             </div>
-          </div>
+          )}
         </Card>
       </div>
     </main>
